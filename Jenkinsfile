@@ -4,7 +4,6 @@ pipeline {
 
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
-		jdk "OpenJDK 11.0.18"
 	        maven "maven-3.8.7"
     }
 
