@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: manjunathachar-deploy
   labels:
-    app:  healthcare_app
+    app: healthcare_app
 spec:
   replicas: 3
   selector:
@@ -29,9 +29,9 @@ metadata:
 spec:
   selector:
     app: healthcare_app
-
   type: NodePort
   ports:
   - nodePort: 31000
     port: 8080
     targetPort: 8080
+
