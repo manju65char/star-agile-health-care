@@ -29,7 +29,7 @@ pipeline {
 				sh 'docker version'
 					sh "docker build -t manjunathachar/healthcare_app:${BUILD_NUMBER} ."
 					sh 'docker image list'
-					sh "docker tag manjunathachar/healthcare_app:${BUILD_NUMBER} manjunathachar/bank_app:latest"
+					sh "docker tag manjunathachar/healthcare_app:${BUILD_NUMBER} manjunathachar/healthcare_app:latest"
             }
         }
 		stage('Login2DockerHub') {
