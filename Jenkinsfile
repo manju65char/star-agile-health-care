@@ -14,7 +14,7 @@ pipeline {
         stage('SCM Checkout') {
             steps {
                 // Get some code from a GitHub repository
-                git 'https://github.com/manju65char/star-agile-health-care.git'
+                git url: 'https://github.com/manju65char/star-agile-health-care.git'
             }
         }
         stage('Maven Build') {
@@ -40,13 +40,13 @@ pipeline {
             steps {
                 //----------------send an approval prompt-------------
                 script {
-                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject'
+                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject', ok: 'Yes', submitterParameter: 'APPROVER'
                 }
                 //-----------------end approval prompt------------
             }
         }
         stage('Push to Docker Hub') {
-            when { expression { env.APPROVED_DEPLOY == 'yes' } }
+            when { expression { env.APPROVED_DEPLOY == 'Yes' } }
             steps {
                 sh "docker push manjunathachar/healthcare_app:latest"
             }
@@ -55,13 +55,13 @@ pipeline {
             steps {
                 //----------------send an approval prompt-----------
                 script {
-                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject'
+                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject', ok: 'Yes', submitterParameter: 'APPROVER'
                 }
                 //-----------------end approval prompt------------
             }
         }
         stage('Deploy to Kubernetes Cluster') {
-            when { expression { env.APPROVED_DEPLOY == 'yes' } }
+            when { expression { env.APPROVED_DEPLOY == 'Yes' } }
             steps {
                 script {
                     sshPublisher(publishers: [sshPublisherDesc(configName: 'kube_masternode', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f k8sdeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
@@ -70,4 +70,3 @@ pipeline {
         }
     }
 }
-
