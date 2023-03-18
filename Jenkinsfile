@@ -6,7 +6,7 @@ pipeline {
         maven "maven-3.8.7"
     }
 
-    environment {    
+    environment {	
         DOCKERHUB_CREDENTIALS = credentials('dockerloginid')
     } 
     
@@ -14,7 +14,7 @@ pipeline {
         stage('SCM Checkout') {
             steps {
                 // Get some code from a GitHub repository
-                git url: 'https://github.com/manju65char/star-agile-health-care.git'
+                git 'https://github.com/manju65char/star-agile-health-care.git'
             }
         }
         stage('Maven Build') {
@@ -33,17 +33,14 @@ pipeline {
         }
         stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerloginid', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR')]) {
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                }
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
         stage('Approve - push Image to Docker Hub') {
             steps {
                 //----------------send an approval prompt-------------
                 script {
-                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject' 
-                          ok 'yes'
+                   env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject'
                 }
                 //-----------------end approval prompt------------
             }
@@ -59,7 +56,6 @@ pipeline {
                 //----------------send an approval prompt-----------
                 script {
                    env.APPROVED_DEPLOY = input message: 'User input required. Choose "yes" to approve or "Abort" to reject'
-                          ok 'yes'
                 }
                 //-----------------end approval prompt------------
             }
@@ -67,11 +63,8 @@ pipeline {
         stage('Deploy to Kubernetes Cluster') {
             when { expression { env.APPROVED_DEPLOY == 'yes' } }
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'kube_masternode', keyFileVariable: 'SSH_KEY', passphraseVariable: '', usernameVariable: 'SSH_USER')]) {
-                    script {
-                        def sshScript = "kubectl apply -f k8sdeployment.yaml"
-                        sshPublisher(publishers: [sshPublisherDesc(configName: 'kube_masternode', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: sshScript, execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
-                    }
+                script {
+                    sshPublisher(publishers: [sshPublisherDesc(configName: 'kube_masternode', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl apply -f k8sdeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '.', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])
                 }
             }
         }
