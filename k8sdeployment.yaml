@@ -31,7 +31,7 @@ spec:
     app: healthcare_app
   type: NodePort
   ports:
-  - nodePort: 31000
+  - nodePort: 31400
     port: 8080
     targetPort: 8080
 
