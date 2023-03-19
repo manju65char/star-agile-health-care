@@ -1,3 +1,4 @@
+
 pipeline {
     agent { label 'Slave1' }
 
@@ -44,8 +45,9 @@ pipeline {
                 }
                 //-----------------end approval prompt------------
             }
-        }
-        stage('Push to Docker Hub') {
+            when {
+                expression { env.APPROVED_DEPLOY == 'Yes' }
+            }
             steps {
                 sh "docker push manjunathachar/healthcare_app:latest"
             }
@@ -58,12 +60,36 @@ pipeline {
                 }
                 //-----------------end approval prompt------------
             }
-        }
-        stage('Deploy to Kubernetes Cluster') {
-            when { expression { env.APPROVED_DEPLOY_KUBE == 'Yes' } }
+            when {
+                expression { env.APPROVED_DEPLOY_KUBE == 'Yes' }
+            }
             steps {
-                script {
-            sshPublisher(publishers: [sshPublisherDesc(configName: 'kube_masternode', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl create -f k8sdeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/devopsadmin', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'k8sdeployment.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])                }
+                sshPublisher(
+                    publishers: [
+                        sshPublisherDesc(
+                            configName: 'kube_masternode',
+                            transfers: [
+                                sshTransfer(
+                                    cleanRemote: false,
+                                    excludes: '',
+                                    execCommand: 'kubectl create -f k8sdeployment.yaml',
+                                    execTimeout: 120000,
+                                    flatten: false,
+                                    makeEmptyDirs: false,
+                                    noDefaultExcludes: false,
+                                    patternSeparator: '[, ]+',
+                                    remoteDirectory: '/home/devopsadmin',
+                                    remoteDirectorySDF: false,
+                                    removePrefix: '',
+                                    sourceFiles: 'k8sdeployment.yaml'
+                                )
+                            ],
+                            usePromotionTimestamp: false,
+                            useWorkspaceInPromotion: false,
+                            verbose: false
+                        )
+                    ]
+                )
             }
         }
     }
