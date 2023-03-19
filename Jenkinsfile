@@ -1,6 +1,3 @@
-
-Manjunathachar K T
-make it correct this code 
 pipeline {
     agent { label 'Slave1' }
 
