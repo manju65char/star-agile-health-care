@@ -1,4 +1,6 @@
 
+Manjunathachar K T
+make it correct this code 
 pipeline {
     agent { label 'Slave1' }
 
@@ -45,9 +47,8 @@ pipeline {
                 }
                 //-----------------end approval prompt------------
             }
-            when {
-                expression { env.APPROVED_DEPLOY == 'Yes' }
-            }
+        }
+        stage('Push to Docker Hub') {
             steps {
                 sh "docker push manjunathachar/healthcare_app:latest"
             }
@@ -60,36 +61,11 @@ pipeline {
                 }
                 //-----------------end approval prompt------------
             }
-            when {
-                expression { env.APPROVED_DEPLOY_KUBE == 'Yes' }
-            }
+        }
+        stage('Deploy to Kubernetes Cluster') {
             steps {
-                sshPublisher(
-                    publishers: [
-                        sshPublisherDesc(
-                            configName: 'kube_masternode',
-                            transfers: [
-                                sshTransfer(
-                                    cleanRemote: false,
-                                    excludes: '',
-                                    execCommand: 'kubectl create -f k8sdeployment.yaml',
-                                    execTimeout: 120000,
-                                    flatten: false,
-                                    makeEmptyDirs: false,
-                                    noDefaultExcludes: false,
-                                    patternSeparator: '[, ]+',
-                                    remoteDirectory: '/home/devopsadmin',
-                                    remoteDirectorySDF: false,
-                                    removePrefix: '',
-                                    sourceFiles: 'k8sdeployment.yaml'
-                                )
-                            ],
-                            usePromotionTimestamp: false,
-                            useWorkspaceInPromotion: false,
-                            verbose: false
-                        )
-                    ]
-                )
+		script {
+            sshPublisher(publishers: [sshPublisherDesc(configName: 'kube_masternode', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: 'kubectl create -f k8sdeployment.yaml', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/home/devopsadmin', remoteDirectorySDF: false, removePrefix: '', sourceFiles: 'k8sdeployment.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: false)])                }
             }
         }
     }
