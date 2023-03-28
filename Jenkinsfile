@@ -28,9 +28,9 @@ pipeline {
         stage("Docker build") {
             steps {
                 sh 'docker version'
-                sh "docker build -t manjunathachar/healthcare_app:${BUILD_NUMBER} ."
+                sh "docker build -t manjunathachar/healthcareapp:${BUILD_NUMBER} ."
                 sh 'docker image list'
-                sh "docker tag manjunathachar/healthcare_app:${BUILD_NUMBER} manjunathachar/healthcare_app:latest"
+                sh "docker tag manjunathachar/healthcareapp:${BUILD_NUMBER} manjunathachar/healthcareapp:latest"
             }
         }
         stage('Login to Docker Hub') {
@@ -49,7 +49,7 @@ pipeline {
         }
         stage('Push to Docker Hub') {
             steps {
-                sh "docker push manjunathachar/healthcare_app:latest"
+                sh "docker push manjunathachar/healthcareapp:latest"
             }
         }
         stage('Approve - Deployment to Kubernetes Cluster') {
